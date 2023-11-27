@@ -10,8 +10,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib import rc
 import matplotlib.font_manager as fm
-
-from main import cashbookWindow
+import main
 
 #엑셀 내보내기
 class excelOutDialog(QDialog):
