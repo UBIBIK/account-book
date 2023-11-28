@@ -5,6 +5,7 @@ from Plot1Canvas import Plot1Canvas
 
 
 # 차트1 윈도우
+# 월별/수입 지출 현황 분석
 class chart1Dialog(QDialog):
     def __init__(self, mainWindowLeft, mainWindowTop):
         super().__init__()
