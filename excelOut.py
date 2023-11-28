@@ -1,16 +1,10 @@
-import sys
-import datetime
 import sqlite3
+
 import openpyxl
-import numpy as np
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
-from matplotlib import rc
-import matplotlib.font_manager as fm
-import main
+
+from main import cashbookWindow
+
 
 #엑셀 내보내기
 class excelOutDialog(QDialog):
