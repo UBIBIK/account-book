@@ -1,6 +1,6 @@
 import sqlite3
 
-from PyQt5.QtCore import QDate
+from PyQt5.QtCore import QDate, pyqtSignal
 from PyQt5.QtGui import QFont, QDoubleValidator
 from PyQt5.QtWidgets import *
 
@@ -9,6 +9,7 @@ from main import cashbookWindow
 
 # 가계부 데이터 입력
 class InsertDialog(QDialog):
+    dataChanged = pyqtSignal()
     def __init__(self, mainWindowLeft, mainWindowTop, dmlCls, tableWidget1RowData):
         super().__init__()
 
@@ -90,9 +91,9 @@ class InsertDialog(QDialog):
             self.pushButton4.setGeometry(150, 375, 80, 30)
             self.pushButton4.clicked.connect(self.pushButton4Clicked)
             # 삭제 버튼
-            self.pushButton4 = QPushButton("삭제", self)
-            self.pushButton4.setGeometry(260, 375, 80, 30)
-            self.pushButton4.clicked.connect(self.pushButton5Clicked)
+            self.pushButton5 = QPushButton("삭제", self)
+            self.pushButton5.setGeometry(260, 375, 80, 30)
+            self.pushButton5.clicked.connect(self.pushButton5Clicked)
             # 나가기 버튼
             self.pushButton7 = QPushButton("나가기", self)
             self.pushButton7.setGeometry(370, 375, 80, 30)
@@ -119,9 +120,9 @@ class InsertDialog(QDialog):
 
     # QDialog 슈퍼클래스의 closeEvent 오버라이딩
     def closeEvent(self, evnt):
-
-        cashbookWindow.selectMainData()
-        return QDialog.closeEvent(self, evnt)
+        # 대화 상자가 닫힐 때 신호 발생
+        self.dataChanged.emit()
+        super().closeEvent(evnt)
 
     # 수입/지출 세부 항목 조회
     def selectIncExpDtlSetInfo(self):
@@ -143,7 +144,7 @@ class InsertDialog(QDialog):
     def appryTableWidget1RowData(self):
         # 일자
         from datetime import datetime
-        self.dateEdit1.setDate(datetime.datetime.strptime(self.tableWidget1RowData[0],'%Y-%m-%d'))
+        self.dateEdit1.setDate(datetime.strptime(self.tableWidget1RowData[0],'%Y-%m-%d'))
         # 수입/지출
         if self.tableWidget1RowData[1] == '수입':
             self.comboBox2.setCurrentIndex(0)
@@ -258,8 +259,10 @@ class InsertDialog(QDialog):
         self.lineEdit4.setText("")
         self.lineEdit5.setText("")
         self.lineEdit4.setFocus()
+        #데이터 저장 후 신호 발생
+        self.dataChanged.emit()
+        self.close()
 
     # 나가기 버튼 클릭 시
     def pushButton7Clicked(self):
         self.close()
-        cashbookWindow.selectMainData()

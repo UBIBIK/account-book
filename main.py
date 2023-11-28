@@ -198,6 +198,11 @@ class cashbookWindow(QMainWindow):
         menuBar.addAction(helpAct)
         helpAct.triggered.connect(self.helpActTriggered)
 
+        # 최상위 'OCR' 메뉴
+        ocrAct = QAction('OCR', self)
+        menuBar.addAction(ocrAct)
+        ocrAct.triggered.connect(self.ocrActTriggered)
+
         # 상태표시줄
         statusBar = self.statusBar()
         statusBar.setFont(QFont('돋움', 11))
@@ -295,8 +300,11 @@ class cashbookWindow(QMainWindow):
                     self.tableWidget1.setItem(i, j, item)
                     j = j + 1
                 i = i + 1
-        except:
+        except Exception as e:
             # 테이블 및 시퀀스 생성, ROW_ID 컬럼은 AUTOINCREMENT
+
+            print("Error during database operation:", e)
+
             cursor.execute("""CREATE TABLE JCASHBOOK_INC_EXP_DTL (
                                              ROW_ID INTEGER PRIMARY KEY AUTOINCREMENT
                                            , INC_EXP_CLS TEXT
@@ -360,6 +368,7 @@ class cashbookWindow(QMainWindow):
         sg = self.geometry()
         from Insert import InsertDialog
         insertDialog = InsertDialog(sg.left(), sg.top(), '2', [])  # dmlCls --> 1 : 수정/삭제, 2 : 입력
+        insertDialog.dataChanged.connect(self.selectMainData)
         insertDialog.exec_()
 
         # 수입/지출 조건 변경 시 세부 항목 리스트 초기화
@@ -371,14 +380,18 @@ class cashbookWindow(QMainWindow):
         # 테이블위젯 "더블클릭" --> 수정/삭제 창 띄우기
 
     def tableWidget1DoubleClicked(self, row, column):
-        tableWidget1RowData = []
-        for i in range(6):
-            tableWidget1RowData.append(self.tableWidget1.item(row, i).text())
-        sg = self.geometry()
-        from Insert import InsertDialog
-        insertDialog = InsertDialog(sg.left(), sg.top(), '1',
-                                    tuple(tableWidget1RowData))  # dmlCls --> 1 : 수정/삭제, 2 : 입력
-        insertDialog.exec_()
+        try:
+            tableWidget1RowData = []
+            for i in range(6):
+                tableWidget1RowData.append(self.tableWidget1.item(row, i).text())
+            sg = self.geometry()
+            from Insert import InsertDialog
+            insertDialog = InsertDialog(sg.left(), sg.top(), '1',
+                                        tuple(tableWidget1RowData))  # dmlCls --> 1 : 수정/삭제, 2 : 입력
+            insertDialog.dataChanged.connect(self.selectMainData)
+            insertDialog.exec_()
+        except Exception as e:
+            print("Error in tableWidget1DoubleClicked: ", e)
 
         # 엑셀 내보내기 메뉴
 
@@ -452,6 +465,12 @@ class cashbookWindow(QMainWindow):
         sg = self.geometry()
         from setDialog import setDialog
         setDlg = setDialog(sg.left(), sg.top())
+        setDlg.exec_()
+
+    def ocrActTriggered(self):
+        sg = self.geometry()
+        from OCR import ocrDialog
+        setDlg = ocrDialog(sg.left(), sg.top())
         setDlg.exec_()
 
 if __name__ == "__main__":  #현재 스크립트가 직접 실행될 때만 아래의 코드를 실행하도록
