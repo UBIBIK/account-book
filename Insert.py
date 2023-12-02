@@ -23,6 +23,44 @@ class InsertDialog(QDialog):
         self.setWindowTitle("cashbook 데이터 입력")
         self.setModal(True)
 
+        #스타일 지정
+        self.setStyleSheet("""
+            QDialog {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                                            stop:0 #B2DFDB, stop:1 #80CBC4); /* 민트색 그라데이션 */
+            }
+
+            QPushButton {
+                background-color: #4DD0E1; /* 청량한 하늘색 배경 */
+                border: none;
+                color: white;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 14px;
+                margin: 4px 2px;
+                cursor: pointer;
+                border-radius: 4px;
+                transition: background-color 0.3s;
+            }
+
+            QPushButton:hover {
+                background-color: #26C6DA; /* 좀 더 진한 하늘색 배경 */
+            }
+
+            QLabel, QCheckBox, QComboBox, QDateEdit {
+                font-size: 14px;
+                color: #00838F; /* 진한 하늘색 텍스트 */
+            }
+
+            QLineEdit, QListWidget {
+                border: 1px solid #4DB6AC; /* 민트색 테두리 */
+                border-radius: 4px;
+                padding: 5px;
+                color: #00695C; /* 진한 민트색 텍스트 */
+            }
+        """)
+
         # 변수 지정
         self.dmlCls = dmlCls
         self.tableWidget1RowData = tableWidget1RowData

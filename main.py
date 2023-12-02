@@ -32,61 +32,121 @@ class cashbookWindow(QMainWindow):
         self.setFixedSize(mainWindowWidth, mainWindowHeight)
         self.setWindowTitle("팀 얼랑뚱땅 - 가계부")
 
+        self.setStyleSheet("""
+            QMainWindow {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                                            stop:0 #B2DFDB, stop:1 #80CBC4); /* 민트색 그라데이션 */
+            }
+
+            QPushButton {
+                background-color: #4DD0E1; /* 청량한 하늘색 배경 */
+                border: none;
+                color: white;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 14px;
+                margin: 4px 2px;
+                cursor: pointer;
+                border-radius: 4px;
+                transition: background-color 0.3s;
+            }
+
+            QPushButton:hover {
+                background-color: #26C6DA; /* 좀 더 진한 하늘색 배경 */
+            }
+
+            QLabel, QCheckBox, QComboBox, QDateEdit {
+                font-size: 14px;
+                color: #00838F; /* 진한 하늘색 텍스트 */
+            }
+
+            QLineEdit {
+                border: 1px solid #4DB6AC; /* 민트색 테두리 */
+                border-radius: 4px;
+                padding: 5px;
+                color: #00695C; /* 진한 민트색 텍스트 */
+            }
+
+            QTableWidget {
+                border: 1px solid #26A69A; /* 중간 민트색 테두리 */
+                selection-background-color: #B2EBF2; /* 연한 하늘색 배경 */
+                selection-color: black;
+            }
+
+            QHeaderView::section {
+                background-color: #80DEEA; /* 연한 하늘색 배경 */
+                padding: 4px;
+                border: 1px solid #4DD0E1; /* 하늘색 테두리 */
+                font-size: 14px;
+            }
+
+            QStatusBar {
+                background: #00C6FF; /* 스카이블루 배경 */
+                color: black;
+            }
+        """)
+
         # 상세 UI 셋업 호출
         self.setupUI()
 
     def setupUI(self):
-        # 년월 조건
-        self.label1 = QLabel('조회조건 : ', self)
+        # 년월 조건 라벨
+        self.label1 = QLabel('조회조건:', self)
         self.label1.move(15, 33)
-        self.label1.setFont(QFont('굴림체', 10))
+        self.label1.setFont(QFont('Arial', 10))
+
+        # 년월 조건 날짜 선택기
         self.dateEdit1 = QDateEdit(self)
         self.dateEdit1.move(95, 35)
-        self.dateEdit1.resize(75, 25)
-        self.dateEdit1.setFont(QFont('굴림체', 10))
-        self.dateEdit1.setDisplayFormat("yyyy-MM")  # 년월 포맷 지정
-        self.dateEdit1.setDate(QDate.currentDate())  # 현재일자 출력
-        self.dateEdit1.setCurrentSectionIndex(1)  # 1 : 디폴트로 월이 증가되도록 함, 0 : 년도가 증가함
+        self.dateEdit1.resize(100, 25)
+        self.dateEdit1.setFont(QFont('Arial', 10))
+        self.dateEdit1.setDisplayFormat("yyyy-MM")
+        self.dateEdit1.setDate(QDate.currentDate())
 
-        # 수입/지출 조건
+        # 수입/지출 조건 콤보 박스
         self.comboBox1 = QComboBox(self)
-        self.comboBox1.setGeometry(180, 35, 80, 25)
+        self.comboBox1.setGeometry(210, 35, 100, 25)
+        self.comboBox1.setFont(QFont('Arial', 10))
         self.comboBox1.addItem("전체")
         self.comboBox1.addItem("수입")
         self.comboBox1.addItem("지출")
         self.comboBox1.setCurrentIndex(0)
         self.comboBox1.activated[str].connect(self.comboBox1Activated)
 
-        # 항목 상세 조건
+        # 항목 상세 조건 콤보 박스
         self.comboBox2 = QComboBox(self)
-        self.comboBox2.setGeometry(270, 35, 100, 25)
+        self.comboBox2.setGeometry(325, 35, 120, 25)
+        self.comboBox2.setFont(QFont('Arial', 10))
         self.comboBox2.addItem("전체")
-        self.comboBox2.setCurrentIndex(0)
 
-        # 적요 조건
+        # 적요 조건 텍스트 필드
         self.lineEdit1 = QLineEdit(self)
-        self.lineEdit1.setGeometry(380, 35, 90, 25)
+        self.lineEdit1.setGeometry(460, 35, 120, 25)
+        self.lineEdit1.setFont(QFont('Arial', 10))
         self.lineEdit1.setMaxLength(20)
-        self.label2 = QLabel(',', self)
-        self.label2.move(473, 35)
-        self.label2.setFont(QFont('굴림체', 10))
 
-        # 정렬 조건
-        self.label3 = QLabel('정렬방식 : ', self)
-        self.label3.move(487, 33)
-        self.label3.setFont(QFont('굴림체', 10))
+        # 정렬 조건 라벨
+        self.label3 = QLabel('정렬방식:', self)
+        self.label3.move(590, 33)
+        self.label3.setFont(QFont('Arial', 10))
+
+        # 정렬 조건 콤보 박스
         self.comboBox3 = QComboBox(self)
-        self.comboBox3.setGeometry(565, 35, 80, 25)
+        self.comboBox3.setGeometry(670, 35, 100, 25)
+        self.comboBox3.setFont(QFont('Arial', 10))
         self.comboBox3.addItem("일자")
         self.comboBox3.addItem("수입/지출")
         self.comboBox3.addItem("세부항목")
         self.comboBox3.addItem("적요")
         self.comboBox3.addItem("금액")
         self.comboBox3.setCurrentIndex(0)
+
+        # 내림차순 체크박스
         self.checkBox3 = QCheckBox("내림차순", self)
         self.checkBox3.setChecked(True)
-        self.checkBox3.setGeometry(655, 35, 80, 25)
-        self.checkBox3.setFont(QFont('굴림체', 10))
+        self.checkBox3.setGeometry(780, 35, 100, 25)
+        self.checkBox3.setFont(QFont('Arial', 10))
 
         # 조회 버튼
         self.pushButton1 = QPushButton("조회", self)
