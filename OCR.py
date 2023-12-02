@@ -1,4 +1,9 @@
+import base64
+import json
+import os
 import sqlite3
+import uuid
+import time
 from datetime import datetime
 import requests
 from PyQt5.QtWidgets import *
@@ -50,42 +55,67 @@ class ocrDialog(QDialog):
             self.processOCR(filename)
 
     def processOCR(self, image_path):
-        url = "http://clovaocr-api-kr.ncloud.com/external/v1/26549/c588e771a4153b59cc1bab82d1513e325b87352e3255bdc8e323a61aa85550d3"  # NAVER CLOVA OCR API URL
-        headers = {
-            "X-OCR-SECRET": "aGlPUUNzSkJKbHV3ZXpHd2lLS1dIZ2NGVklCaWlRYUk="  # API 키
+        # NAVER CLOVA OCR API URL과 API 키
+        url = "https://vlh98m0hhc.apigw.ntruss.com/custom/v1/26549/c588e771a4153b59cc1bab82d1513e325b87352e3255bdc8e323a61aa85550d3/general"
+        secret_key = "dW1ab2h2WGVtZGhYa2JGaElySWtkUE5KbHJNS0luTm8="
+
+        request_json = {
+            'images': [
+                {
+                    'format': 'jpg',
+                    'name': 'demo'
+                }
+            ],
+            'requestId': str(uuid.uuid4()),
+            'version': 'V2',
+            'timestamp': int(round(time.time() * 1000))
         }
 
-        # 파일을 'rb' 모드로 열어 바이너리 데이터를 준비합니다.
-        files = {'image': open(image_path, 'rb')}
+        payload = {'message': json.dumps(request_json).encode('UTF-8')}
+        files = [
+            ('file', open(image_path, 'rb'))
+        ]
+        headers = {
+            'X-OCR-SECRET': secret_key
+        }
 
-        try:
-            response = requests.post(url, headers=headers, files=files)
-            response.raise_for_status()  # 요청 실패 시 예외 발생
+        response = requests.request("POST", url, headers=headers, data=payload, files=files)
 
-            # 여기에서 API 응답을 처리합니다.
-            ocr_result = response.json()
-            self.handleOCRResult(ocr_result)
+        print(response.text.encode('utf8'))
 
-        except requests.exceptions.HTTPError as err:
-            QMessageBox.warning(self, "API 요청 실패", f"HTTP 요청 에러: {err}")
-        except Exception as e:
-            QMessageBox.warning(self, "오류 발생", f"오류: {e}")
+        result = response.json()
+
+        print(result)
+
+        text = ""
+        for field in result['images'][0]['fields']:
+            text += field['inferText']
+        print(text)
 
     def handleOCRResult(self, result):
-        # OCR 결과에서 필요한 정보 추출
+        # 필요한 정보 추출
         store_name = result["result"]["storeInfo"]["name"]["text"]
+        address = result["result"]["storeInfo"]["address"][0]["text"]
         date_text = result["result"]["paymentInfo"]["date"]["text"]
         total_price = result["result"]["totalPrice"]["price"]["formatted"]["value"]
 
-        # 날짜 형식 변환 (예시: '2019/06/02' -> '2019-06-02')
-        date_formatted = datetime.strptime(date_text, "%Y/%m/%d").strftime("%Y-%m-%d")
+        # 항목 정보 추출
+        items = []
+        for item in result["result"]["subResults"][0]["items"]:
+            name = item["name"]["text"]
+            count = item["count"]["text"]
+            price = item["priceInfo"]["price"]["formatted"]["value"]
+            unit_price = item["priceInfo"]["unitPrice"]["formatted"]["value"]
 
-        # 추출된 데이터 저장
-        self.extractedData = {
-            "date": date_formatted,
-            "note": store_name,
-            "amount": total_price
-        }
+            items.append(f"항목: {name}, 수량: {count}, 금액: {price}, 단가: {unit_price}")
+
+        # 결과 문자열 생성
+        ocr_text = f"매장 이름: {store_name}\n주소: {address}\n날짜: {date_text}\n총 금액: {total_price}\n"
+        for item_text in items:
+            ocr_text += item_text + "\n"
+
+        # OCR 결과 표시
+        self.ocrResultText.setText(ocr_text)
 
     def saveData(self):
         if self.extractedData:
