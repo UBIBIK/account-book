@@ -23,6 +23,7 @@ class cashbookWindow(QMainWindow):
 
         # 윈도우 센터에 위치 시키기, 타이틀 지정, Modal 지정
         # 해상도 구하기 (sg = QDesktopWidget().screenGeometry())
+        self.tableWidget1 = None
         ag = QDesktopWidget().availableGeometry()
         mainWindowWidth = 1000
         mainWindowHeight = 740
@@ -192,7 +193,7 @@ class cashbookWindow(QMainWindow):
         # 테이블 구성
         self.tableWidget1 = QTableWidget(self)
         self.tableWidget1.setGeometry(15, 110, 970, 605)
-        # self.tableWidget1.setGridStyle(Qt.SolidLine)
+        self.tableWidget1.setGridStyle(Qt.SolidLine)
         self.tableWidget1.setRowCount(1)
         self.tableWidget1.setColumnCount(6)
         self.tableWidget1.setColumnWidth(0, 110)
@@ -252,8 +253,6 @@ class cashbookWindow(QMainWindow):
         setIncExpDtlAct.triggered.connect(self.setIncExpDtlActTriggered)
 
         # 최상위 '도움말' 메뉴
-        # helpMenu = menuBar.addMenu('도움말')
-        # helpMenu.setFont(QFont('돋움', 11))
         helpAct = QAction('도움말', self)
         menuBar.addAction(helpAct)
         helpAct.triggered.connect(self.helpActTriggered)
@@ -262,6 +261,11 @@ class cashbookWindow(QMainWindow):
         ocrAct = QAction('OCR', self)
         menuBar.addAction(ocrAct)
         ocrAct.triggered.connect(self.ocrActTriggered)
+
+        # 최상위 '피드백' 메뉴
+        feedAct = QAction('피드백', self)
+        menuBar.addAction(feedAct)
+        feedAct.triggered.connect(self.feedActTriggered)
 
         # 상태표시줄
         statusBar = self.statusBar()
@@ -532,6 +536,15 @@ class cashbookWindow(QMainWindow):
         from OCR import ocrDialog
         setDlg = ocrDialog(sg.left(), sg.top())
         setDlg.exec_()
+
+    def feedActTriggered(self):
+        try:
+            sg = self.geometry()
+            from feed import feedDialog
+            setDlg = feedDialog(sg.left(), sg.top())
+            setDlg.exec_()
+        except Exception as e:
+            print(f"오류: {e}")
 
 if __name__ == "__main__":  #현재 스크립트가 직접 실행될 때만 아래의 코드를 실행하도록
     app = QApplication(sys.argv)
